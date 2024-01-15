@@ -1,0 +1,76 @@
+#!/bin/bash
+# Script para extraer informacion del sistema.
+# La informacion queda almacenada en un archivo con el mismo nombre del host y extension txt.
+# Necesario ejecutar con privilegios de administracion (con sudo o como root).
+  
+NOMBRE_ARCHIVO=${HOSTNAME}.txt
+echo ++++++++++++++++++++++++++++++++++++++++++++  > $NOMBRE_ARCHIVO
+echo Nombre de host >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /etc/hostname >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Archivo de hosts >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /etc/hosts >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Archivo de resolucion dns >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /etc/resolv.conf >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Paquete resolvconf >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+dpkg -l resolvconf >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Interfaces de red >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /etc/network/interfaces >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Informacion de disco >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+fdisk -l >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Informacion de memoria >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /proc/meminfo |grep MemTotal >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Usuario administrador >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /etc/passwd | grep administrador  >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Grupo sudo >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+cat /etc/group | grep -w sudo      >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Solicitud de usr y pass en modo grafico       >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+if [ -f /etc/lightdm/lightdm.conf ] # versiones anteriores a 14
+ then
+ cat /etc/lightdm/lightdm.conf | grep greeter-show-manual-login >> $NOMBRE_ARCHIVO
+ elif [ -d /usr/share/lightdm/lightdm.conf.d/ ] # versiones 14 y posteriores
+  then
+   cat /usr/share/lightdm/lightdm.conf.d/*.conf | grep greeter-show-manual-login >> $NOMBRE_ARCHIVO
+ else
+  echo No se encuentra informacion de configuracion de lightdm
+fi
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+#  echo Inicio en modo texto                          >> $NOMBRE_ARCHIVO
+#  echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+#  cat /etc/default/grub | grep GRUB_CMDLINE_LINUX_DEFAULT >> $NOMBRE_ARCHIVO
+#  echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo VMware Tools en ejecucion                     >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+ps aux | grep vmtoolsd  | grep -v "grep"           >> $NOMBRE_ARCHIVO
+# systemctl status open-vm-tools
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Antivirus en ejecucion                        >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+systemctl status clamav-freshclam                  >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Servicio ssh en ejecucion                     >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+systemctl status  sshd                             >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+echo Repositorio local aptcacher                   >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
+tail -n 3 /etc/apt/sources.list 	   	   >> $NOMBRE_ARCHIVO
+echo ++++++++++++++++++++++++++++++++++++++++++++  >> $NOMBRE_ARCHIVO
